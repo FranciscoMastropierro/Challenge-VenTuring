@@ -2,6 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
+const cors = require('cors');
 const routes = require('./routes/index.js');
 const myDataSource  = require('./dbConnection.js');
 
@@ -16,8 +17,15 @@ myDataSource
 
 const server = express();
 
+global.__basedir = __dirname;
+var corsOptions = {
+  origin: "http://localhost:8080"
+};
+server.use(cors(corsOptions));
+
 server.name = 'API';
 
+server.use(express.urlencoded({ extended: true }));
 server.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 server.use(bodyParser.json({ limit: '50mb' }));
 server.use(cookieParser());
