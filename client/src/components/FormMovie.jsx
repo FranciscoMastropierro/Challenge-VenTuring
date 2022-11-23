@@ -1,19 +1,35 @@
-import { Button, InputNumber, Form, Input } from "antd";
-import { useEffect } from "react";
+import { Button, InputNumber, Form, Input, Alert } from "antd";
+import { useEffect, useState } from "react";
 const { TextArea   } = Input;
 
 const FormMovie = ({ fetcher, data, closeModal }) => {
   const [form] = Form.useForm();
+  const [errorMessage, setErrorMessage] = useState(null)
+
 
   useEffect(() => {
     form.setFieldsValue(data);
+    return setErrorMessage(null)
+    
   }, [data, form]);
 
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
     if (data) values.id = data.id;
-    fetcher(values);
-    form.resetFields();
-    closeModal();
+    
+    const error = await fetcher(values);
+    if(!error) {
+      form.resetFields();
+      setErrorMessage(null)
+      closeModal();
+    } else {
+      setErrorMessage(error.message)
+      if(error.type === "add") form.resetFields();
+      setTimeout(()=>{
+        setErrorMessage(null)
+      }, 3000)
+    }
+ 
+  
   };
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
@@ -82,6 +98,12 @@ const FormMovie = ({ fetcher, data, closeModal }) => {
           Submit
         </Button>
       </Form.Item>
+      {errorMessage && <Alert
+          message="Error"
+          description={errorMessage}
+          type="error"
+          showIcon
+        />}
     </Form>
   );
 };

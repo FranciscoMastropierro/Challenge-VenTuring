@@ -21,7 +21,7 @@ module.exports = {
         try {
             const moviesInDB = await dataSource
             .getRepository(Movie)
-            .find({ select: ['title'] });  
+            .find({ select: ['title', 'id'] });  
 
           const isMovieDB = containsMovie(movie, moviesInDB);
           if(!isMovieDB) {
@@ -30,7 +30,7 @@ module.exports = {
                 .getRepository(Movie).save(movieCreated);
             res.send(movieCreated);
           } else {
-            res.status(404).send({message: 'Movie already exists!'});
+            res.status(404).send({message: `Ya existe una pelicula con ese titulo: ${movie.title}`});
           }  
           
         } catch (error) {
@@ -41,16 +41,26 @@ module.exports = {
     editMovie : async (req, res) => {
       const movie = req.body;
       try {
+        const moviesInDB = await dataSource
+        .getRepository(Movie)
+        .find({ select: ['title', 'id'] });  
+
+      const isMovieDB = containsMovie(movie, moviesInDB);
+      if(!isMovieDB) {
         await dataSource
-          .createQueryBuilder()
-          .update(Movie)
-          .set(movie)
-          .where('id = :id', { id: movie.id })
-          .execute();
+        .createQueryBuilder()
+        .update(Movie)
+        .set(movie)
+        .where('id = :id', { id: movie.id })
+        .execute();
         res.send({ message: 'Movie updated!' });
-      } catch (error) {
-        console.log(error);
-      }
+      } else {
+        res.status(404).send({message: `Ya existe una pelicula con ese titulo: ${movie.title}`});
+      }  
+      
+    } catch (error) {
+      console.log(error);
+    }
     },
 
     deleteMovie: async (req, res) => {

@@ -4,9 +4,10 @@ import axios from "axios";
 import ModalMovie from "./ModalMovie";
 import ModalDeleteMovie from "./ModalDeleteMovie";
 
-const URL_addMovie = "http://localhost:3001/movie/add";
-const URL_editMovie = "http://localhost:3001/movie/edit/";
-const URL_deleteMovie = "http://localhost:3001/movie/delete/";
+const URL_addMovie = "http://localhost:3001/api/movie/add";
+const URL_editMovie = "http://localhost:3001/api/movie/edit/";
+const URL_deleteMovie = "http://localhost:3001/api/movie/delete/";
+const initialState = {id : null, title:"", description:"", year:null};
 
 export const MoviesTable = ({ movies }) => {
 
@@ -14,7 +15,7 @@ export const MoviesTable = ({ movies }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showModifyModal, setShowModifyModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [modalData, setModalData] = useState(null);
+  const [modalData, setModalData] = useState(initialState);
   const [modalDeleteData, setModalDeleteData] = useState(null);
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export const MoviesTable = ({ movies }) => {
 
   const closeCreateModal = () => {
     setShowCreateModal(false);
+    setModalData(initialState);
   };
 
   const openCreateModal = () => {
@@ -31,7 +33,7 @@ export const MoviesTable = ({ movies }) => {
 
   const closeModifyModal = () => {
     setShowModifyModal(false);
-    setModalData(null);
+    setModalData(initialState);
   };
 
   const openModifyModal = (movie) => {
@@ -93,6 +95,8 @@ export const MoviesTable = ({ movies }) => {
       setData([response.data, ...data]);
     } catch (error) {
       console.log(error);
+      return {message :error.response.data.message, type : "add"};
+
     }
   };
 
@@ -102,6 +106,8 @@ export const MoviesTable = ({ movies }) => {
       setData(data.map((e) => e.id === movie.id ? movie : e))
     } catch (error) {
       console.log(error);
+      setModalData(null);
+      return {message :error.response.data.message, type : "edit"};
     }
   };
 
@@ -129,6 +135,7 @@ export const MoviesTable = ({ movies }) => {
         closeModal={closeCreateModal}
         title={"Nueva pelicula"}
         fetcher={addMovie}
+        movie={initialState}
       />
       <ModalMovie
         show={showModifyModal}

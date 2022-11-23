@@ -7,6 +7,7 @@ module.exports = {
     lines.map((l) => {
       const obj = {};
       const line = l.split(";");
+      if(line.length !== 4) return;
 
       obj.title = line[0];
       obj.description = line[1];
@@ -29,6 +30,7 @@ module.exports = {
     var i;
     for (i = 0; i < moviesInDB.length; i++) {
       if (moviesInDB[i].title === movie.title) {
+        if(moviesInDB[i].id === movie.id) return false
         return true;
       }
     }
